@@ -12,7 +12,7 @@ COINBASE_API_SECRET = os.getenv("COINBASE_API_SECRET", "")
 COINBASE_API_PASSPHRASE = os.getenv("COINBASE_API_PASSPHRASE", "")
 
 # Toggle between testnet and mainnet
-USE_TESTNET = os.getenv("USE_TESTNET", "false").lower() == "true"
+USE_TESTNET = os.getenv("USE_TESTNET", "true").lower() == "true"  # Default to testnet
 
 # WebSocket URLs
 BINANCE_WS_URL = "wss://testnet.binance.vision/ws" if USE_TESTNET else "wss://stream.binance.com:9443/ws"
@@ -32,7 +32,7 @@ SIMULATED_LATENCY = float(os.getenv("SIMULATED_LATENCY", "0.05"))  # 50ms defaul
 SLIPPAGE_RATE = float(os.getenv("SLIPPAGE_RATE", "0.0005"))  # 0.05% default
 
 # Model file path
-MODEL_PATH = os.getenv("MODEL_PATH", "models/arb_model.pkl")
+MODEL_PATH = os.getenv("MODEL_PATH", "models/arbitrage_model.json")  # Changed to match our model file
 
 # CORS settings
 CORS_ORIGINS = os.getenv("CORS_ORIGINS", "*").split(",")

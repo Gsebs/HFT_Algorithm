@@ -5,7 +5,7 @@ from typing import Dict, List, Optional, Tuple
 from datetime import datetime
 
 from app.streams import latest_prices, last_update
-from app.models.ml_model import arbitrage_model
+from app.models.ml_model import update_spreads, predict
 from app.utils.config import (
     BINANCE_FEE,
     COINBASE_FEE, 
@@ -100,12 +100,12 @@ async def arbitrage_strategy():
                 spread_pct = (coinbase_price - binance_price) / binance_price * 100
                 
                 # Update model with current spread
-                arbitrage_model.update_spreads(spread_pct)
+                update_spreads(spread_pct)
                 
                 # Check basic threshold before using ML model (optimization)
                 if spread_pct > min_spread_threshold:
                     # Get ML model prediction and confidence
-                    prediction = arbitrage_model.predict()
+                    prediction = predict()
                     
                     if prediction is not None:
                         is_profitable, confidence = prediction
