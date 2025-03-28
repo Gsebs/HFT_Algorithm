@@ -1,123 +1,116 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowUpIcon, ArrowDownIcon } from "@radix-ui/react-icons";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface Stats {
   totalTrades: number;
-  successfulTrades: number;
-  totalProfitLoss: number;
-  averageSpread: number;
   winRate: number;
-  largestProfit: number;
-  largestLoss: number;
-  averageTradeSize: number;
+  averageProfit: number;
+  totalVolume: number;
+  maxDrawdown: number;
+  sharpeRatio: number;
 }
 
 export function Stats() {
   const [stats, setStats] = useState<Stats>({
     totalTrades: 0,
-    successfulTrades: 0,
-    totalProfitLoss: 0,
-    averageSpread: 0,
     winRate: 0,
-    largestProfit: 0,
-    largestLoss: 0,
-    averageTradeSize: 0,
+    averageProfit: 0,
+    totalVolume: 0,
+    maxDrawdown: 0,
+    sharpeRatio: 0,
   });
 
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/stats`);
-        const data = await response.json();
-        setStats(data);
-      } catch (error) {
-        console.error('Error fetching stats:', error);
+    const ws = new WebSocket(process.env.NEXT_PUBLIC_API_BASE_URL!.replace('http', 'ws'));
+    
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.stats) {
+        setStats({
+          totalTrades: data.stats.total_trades,
+          winRate: data.stats.win_rate * 100,
+          averageProfit: data.stats.average_profit,
+          totalVolume: data.stats.total_volume,
+          maxDrawdown: data.stats.max_drawdown,
+          sharpeRatio: data.stats.sharpe_ratio,
+        });
       }
     };
 
-    // Initial fetch
-    fetchStats();
-
-    // Set up polling every 5 seconds
-    const interval = setInterval(fetchStats, 5000);
-
-    return () => clearInterval(interval);
+    return () => {
+      ws.close();
+    };
   }, []);
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      <Card className="bg-card/50 backdrop-blur-sm">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">Total P&L</CardTitle>
-          <div className={stats.totalProfitLoss >= 0 ? "text-green-500" : "text-red-500"}>
-            {stats.totalProfitLoss >= 0 ? (
-              <ArrowUpIcon className="h-4 w-4" />
-            ) : (
-              <ArrowDownIcon className="h-4 w-4" />
-            )}
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <Card className="glass-card">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm font-medium text-zinc-400">Total Trades</p>
+            <div className="text-sm text-zinc-400">24h</div>
           </div>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
-            ${Math.abs(stats.totalProfitLoss).toLocaleString(undefined, { minimumFractionDigits: 2 })}
-          </div>
-          <p className="text-xs text-muted-foreground">
-            From {stats.totalTrades} total trades
-          </p>
+          <div className="text-2xl font-bold text-zinc-100">{stats.totalTrades}</div>
         </CardContent>
       </Card>
 
-      <Card className="bg-card/50 backdrop-blur-sm">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">Win Rate</CardTitle>
-          <div className="text-green-500">
-            <ArrowUpIcon className="h-4 w-4" />
+      <Card className="glass-card">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm font-medium text-zinc-400">Win Rate</p>
+            <div className="text-sm text-zinc-400">24h</div>
           </div>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
-            {(stats.winRate * 100).toFixed(1)}%
-          </div>
-          <p className="text-xs text-muted-foreground">
-            {stats.successfulTrades} successful trades
-          </p>
+          <div className="text-2xl font-bold text-zinc-100">{stats.winRate.toFixed(1)}%</div>
         </CardContent>
       </Card>
 
-      <Card className="bg-card/50 backdrop-blur-sm">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">Average Spread</CardTitle>
-          <div className="text-blue-500">
-            <span className="text-sm font-medium">USD</span>
+      <Card className="glass-card">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm font-medium text-zinc-400">Average Profit</p>
+            <div className="text-sm text-zinc-400">24h</div>
           </div>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
-            ${stats.averageSpread.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+          <div className="text-2xl font-bold text-zinc-100">
+            ${stats.averageProfit.toFixed(2)}
           </div>
-          <p className="text-xs text-muted-foreground">
-            Per trade opportunity
-          </p>
         </CardContent>
       </Card>
 
-      <Card className="bg-card/50 backdrop-blur-sm">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium text-muted-foreground">Trade Size</CardTitle>
-          <div className="text-purple-500">
-            <span className="text-sm font-medium">BTC</span>
+      <Card className="glass-card">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm font-medium text-zinc-400">Total Volume</p>
+            <div className="text-sm text-zinc-400">24h</div>
           </div>
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">
-            {stats.averageTradeSize.toFixed(4)}
+          <div className="text-2xl font-bold text-zinc-100">
+            {stats.totalVolume.toFixed(2)} BTC
           </div>
-          <p className="text-xs text-muted-foreground">
-            Average volume per trade
-          </p>
+        </CardContent>
+      </Card>
+
+      <Card className="glass-card">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm font-medium text-zinc-400">Max Drawdown</p>
+            <div className="text-sm text-zinc-400">24h</div>
+          </div>
+          <div className="text-2xl font-bold text-red-500">
+            {stats.maxDrawdown.toFixed(2)}%
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="glass-card">
+        <CardContent className="p-6">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm font-medium text-zinc-400">Sharpe Ratio</p>
+            <div className="text-sm text-zinc-400">24h</div>
+          </div>
+          <div className="text-2xl font-bold text-zinc-100">
+            {stats.sharpeRatio.toFixed(2)}
+          </div>
         </CardContent>
       </Card>
     </div>

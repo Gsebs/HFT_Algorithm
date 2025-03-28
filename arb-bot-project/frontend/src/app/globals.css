@@ -59,4 +59,73 @@
 /* Gradient backgrounds for chart lines */
 .recharts-line-curve {
   filter: drop-shadow(0 0 6px rgba(59, 130, 246, 0.3));
+}
+
+/* Custom animations */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse-slow {
+  animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Glass effect for cards */
+.glass-card {
+  @apply bg-zinc-900/50 backdrop-blur-sm border-zinc-800;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-zinc-900;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-zinc-700 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-zinc-600;
+}
+
+/* Price change indicators */
+.price-up {
+  @apply text-green-500;
+}
+
+.price-down {
+  @apply text-red-500;
+}
+
+/* Trade status badges */
+.trade-status {
+  @apply px-2 py-1 rounded-full text-xs font-medium;
+}
+
+.trade-status-success {
+  @apply bg-green-500/10 text-green-500;
+}
+
+.trade-status-failure {
+  @apply bg-red-500/10 text-red-500;
+}
+
+/* ML confidence bar */
+.ml-confidence-bar {
+  @apply h-1.5 rounded-full bg-zinc-800 overflow-hidden;
+}
+
+.ml-confidence-fill {
+  @apply h-full bg-yellow-500 transition-all duration-300;
 } 
